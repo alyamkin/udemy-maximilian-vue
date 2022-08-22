@@ -1,16 +1,30 @@
 <template>
   <section>
     <header><h1>My friends</h1></header>
+    <div>
+      <new-friend @add-contact="addNewFriend"></new-friend>
+    </div>
     <ul>
-      <friend-contact></friend-contact>
+      <friend-contact
+        v-for="friend in friends"
+        :id="friend.id"
+        :key="friend.id"
+        :name="friend.name"
+        :phone-number="friend.phone"
+        :email-address="friend.email"
+        :is-favorite="friend.isFavorite"
+        @toggle-favorite="toggleFavoriteFriend"
+        @delete="deleteContact"
+      ></friend-contact>
     </ul>
   </section>
 </template>
 
 <script>
 import FriendContact from "./components/FriendContact.vue";
+import NewFriend from "./components/NewFriend.vue";
 export default {
-  components: { FriendContact },
+  components: { FriendContact, NewFriend },
   data() {
     return {
       friends: [
@@ -19,15 +33,37 @@ export default {
           name: "Andrey Lyamkin",
           phone: "514 245 3355",
           email: "andrey@localhost.com",
+          isFavorite: true,
         },
         {
           id: "sergey",
           name: "Sergey Lyamkin",
           phone: "514 245 8599",
           email: "sergey@localhost.com",
+          isFavorite: false,
         },
       ],
     };
+  },
+  methods: {
+    toggleFavoriteFriend(idFriend) {
+      const friendToUpdate = this.friends.find(
+        (friend) => friend.id === idFriend
+      );
+      friendToUpdate.isFavorite = !friendToUpdate.isFavorite;
+    },
+    addNewFriend(newContact) {
+      const newFriend = {
+        id: new Date().toISOString(),
+        isFavorite: false,
+        ...newContact,
+      };
+      console.log(newFriend);
+      this.friends.push(newFriend);
+    },
+    deleteContact(idFriend) {
+      this.friends = this.friends.filter((friend) => friend.id !== idFriend);
+    },
   },
 };
 </script>
@@ -64,7 +100,8 @@ header {
   list-style: none;
 }
 
-#app li {
+#app li,
+#app form {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
   margin: 1rem auto;
   border-radius: 10px;
